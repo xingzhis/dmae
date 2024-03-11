@@ -24,8 +24,9 @@ from utils.log_utils import log
 from utils.seed import seed_everything
 from visualize import visualize
 
-load_dotenv('../.env')
-PROJECT_PATH=os.getenv('PROJECT_PATH')
+# load_dotenv('../.env')
+# PROJECT_PATH=os.getenv('PROJECT_PATH')
+PROJECT_PATH = '../affinity_matching_results_xingzhi/'
 
 def train_decoder(model, train_loader, val_loader, test_loader, cfg, save_dir, wandb_run=None):
     log_path = os.path.join(PROJECT_PATH, cfg.path.root, save_dir, cfg.path.log)
@@ -139,9 +140,9 @@ def true_path_base(s):
 def train_eval(cfg: DictConfig):
     # format noise with 2 f digits
     if cfg.model.encoding_method in ['phate', 'tsne', 'umap']:
-        save_dir =  f'sepa_{cfg.model.encoding_method}_{cfg.data.name}{cfg.data.noise:.2f}_bw{cfg.model.bandwidth}_knn{cfg.data.knn}'
+        save_dir =  f'sepa_{cfg.model.encoding_method}_{cfg.data.noisy_path}{cfg.data.noise:.2f}_bw{cfg.model.bandwidth}_knn{cfg.data.knn}'
     else:
-        save_dir =  f'sepa_{cfg.model.prob_method}_{cfg.data.name}{cfg.data.noise:.2f}_bw{cfg.model.bandwidth}_knn{cfg.data.knn}'
+        save_dir =  f'sepa_{cfg.model.prob_method}_{cfg.data.noisy_path}{cfg.data.noise:.2f}_bw{cfg.model.bandwidth}_knn{cfg.data.knn}'
     os.makedirs(os.path.join(PROJECT_PATH, cfg.path.root, save_dir), exist_ok=True)
     model_save_path = os.path.join(PROJECT_PATH, cfg.path.root, save_dir, cfg.path.model)
     decoder_save_path = os.path.join(PROJECT_PATH, cfg.path.root, save_dir, cfg.path.decoder_model)
@@ -153,7 +154,7 @@ def train_eval(cfg: DictConfig):
             entity=cfg.logger.entity,
             project=cfg.logger.project,
             tags=cfg.logger.tags,
-            name=f'sepa_{cfg.model.prob_method}_{cfg.data.name}',
+            name=f'sepa_{cfg.model.prob_method}_{cfg.data.noisy_path}',
             reinit=True,
             config=config,
             settings=wandb.Settings(start_method="thread"),
@@ -177,8 +178,8 @@ def train_eval(cfg: DictConfig):
         splatter_data_root = '/gpfs/gibbs/pi/krishnaswamy_smita/xingzhi/dmae/synthetic_data/'
         noisy_data_path = os.path.join(splatter_data_root, cfg.data.noisy_path)
         true_data_path = os.path.join(splatter_data_root, true_path_base(os.path.basename(noisy_data_path)))
-        noise_data = np.load(noisy_data_path)
-        true_data = np.load(true_data_path)
+        noise_data = np.load(noisy_data_path + '.npz')
+        true_data = np.load(true_data_path + '.npz')
         true_data = true_data['data']
         raw_data = noise_data['data']
         labels = noise_data['colors']
